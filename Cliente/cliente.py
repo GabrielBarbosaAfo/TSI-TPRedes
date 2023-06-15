@@ -20,8 +20,7 @@ def iniciaCliente():
 
     # Receber a lista de imagens disponíveis
     contadorImagem = int(clienteSocket.recv(1024).decode())
-    
-    print('Imagens disponíveis:')
+
     nomeImagem = clienteSocket.recv(1024).decode()
     print(f"Imagens disponiveis:\n{nomeImagem}\n")
 
