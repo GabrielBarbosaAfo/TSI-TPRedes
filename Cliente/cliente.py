@@ -24,7 +24,8 @@ def enviarEscolha(clienteSocket, escolha):
             break
         _, arquivo = os.path.split(resposta)
         nomeArquivo = os.path.splitext(arquivo)[0]
-        print(f"A imagem {nomeArquivo} foi recebida com sucesso")
+        mensagem = f"A imagem {nomeArquivo} foi recebida com sucesso"
+        sg.popup(mensagem)  # Exibir mensagem em uma janela de pop-up
         recebeImagem(clienteSocket, resposta)
 
     # Fecha a conexão
@@ -43,12 +44,10 @@ def iniciaCliente():
 
     nomeImagem = clienteSocket.recv(1024).decode()
 
-    print(f"Imagens disponíveis:\n{nomeImagem}\n")
-
     # Layout da janela
     layout = [
         [sg.Text('Escolha uma opção:')],
-        [sg.Combo(nomeImagem.split("\n"), key='-ESCOLHA-', size = (20,1))],
+        [sg.Combo(nomeImagem.split("\n"), key='-ESCOLHA-', size=(20, 1))],
         [sg.Button('Enviar')]
     ]
 
