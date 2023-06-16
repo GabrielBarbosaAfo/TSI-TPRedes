@@ -1,6 +1,8 @@
 import socket
+import PySimpleGUI as sg
+import os
 
-#Recebe a imagem colocando-a na pasta imagens
+# Recebe a imagem colocando-a na pasta imagens
 def recebeImagem(clienteSocket, nomeArquivo):
     with open(nomeArquivo, 'wb') as file:
         while True:
@@ -9,7 +11,25 @@ def recebeImagem(clienteSocket, nomeArquivo):
                 break
             file.write(imagem)
 
-#Recebe a lista de imagens e retorna o a escolhida pelo cliente
+# Função para lidar com o clique do botão Enviar
+def enviarEscolha(clienteSocket, escolha):
+    escolhaCliente = int(escolha)
+
+    # Enviar a escolha para o servidor
+    clienteSocket.sendall(str(escolhaCliente).encode())
+
+    while True:
+        resposta = clienteSocket.recv(1024).decode()
+        if not resposta:
+            break
+        _, arquivo = os.path.split(resposta)
+        nomeArquivo = os.path.splitext(arquivo)[0]
+        print(f"A imagem {nomeArquivo} foi recebida com sucesso")
+        recebeImagem(clienteSocket, resposta)
+
+    # Fecha a conexão
+    clienteSocket.close()
+
 def iniciaCliente():
     host = '127.0.0.1'
     porta = 12000
@@ -22,26 +42,40 @@ def iniciaCliente():
     contadorImagem = int(clienteSocket.recv(1024).decode())
 
     nomeImagem = clienteSocket.recv(1024).decode()
-    print(f"Imagens disponiveis:\n{nomeImagem}\n")
 
+    print(f"Imagens disponíveis:\n{nomeImagem}\n")
+
+    # Layout da janela
+    layout = [
+        [sg.Text('Escolha uma opção:')],
+        [sg.Combo(nomeImagem.split("\n"), key='-ESCOLHA-', size = (20,1))],
+        [sg.Button('Enviar')]
+    ]
+
+    # Criação da janela
+    window = sg.Window('Cliente', layout)
+
+    # Loop de eventos
     while True:
-        escolhaCliente = int(input('Digite sua escolha: '))
+        event, values = window.read()
 
-        # Enviar a escolha para o servidor
-        clienteSocket.sendall(str(escolhaCliente).encode())
+        if event == sg.WINDOW_CLOSED:
+            break
 
-        while True:
-            resposta = clienteSocket.recv(1024).decode()
-            if not resposta:
-                break
-            formatandoImagem = resposta.split('/')[1]
-            imagemFormatada = formatandoImagem.split('.')[0]
-            print(f"A imagem {imagemFormatada} foi recebida com sucesso")
-            recebeImagem(clienteSocket, resposta)
-        break
+        if event == 'Enviar':
+            escolha = values['-ESCOLHA-']
+            i = 1
+            for nome in nomeImagem.split("\n"):
+                if escolha == nome:
+                    escolha = i
+                    break
+                else:
+                    i += 1
+            enviarEscolha(clienteSocket, escolha)
+            break
 
-    # Fecha a conexão
-    clienteSocket.close()
+    # Fechamento da janela
+    window.close()
 
 if __name__ == '__main__':
     iniciaCliente()

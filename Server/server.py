@@ -15,11 +15,10 @@ def trataCliente(conexaoCliente):
     quantidadeImagens = len(imagens)
     conexaoCliente.send(str(quantidadeImagens).encode())
 
-    numeroImg = 1 
+    
     nomesImagens = '' 
     for image_name in imagens:
-        nomesImagens += f"{numeroImg} - {image_name}\n"  
-        numeroImg += 1
+        nomesImagens += f"{image_name}\n"  
 
     conexaoCliente.send(nomesImagens.encode())
 
