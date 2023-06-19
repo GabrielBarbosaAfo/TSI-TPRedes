@@ -25,7 +25,7 @@ def enviarEscolha(clienteSocket, escolha):
         _, arquivo = os.path.split(resposta)
         nomeArquivo = os.path.splitext(arquivo)[0]
         mensagem = f"A imagem {nomeArquivo} foi recebida com sucesso"
-        sg.popup(mensagem)  # Exibir mensagem em uma janela de pop-up
+        sg.popup(mensagem, title='Imagem Recebida') # Exibir mensagem em uma janela de pop-up
         recebeImagem(clienteSocket, resposta)
 
     # Fecha a conexão
@@ -52,7 +52,7 @@ def iniciaCliente():
     ]
 
     # Criação da janela
-    window = sg.Window('Cliente', layout)
+    window = sg.Window('Cliente', layout, size=(300, 100))
 
     # Loop de eventos
     while True:
