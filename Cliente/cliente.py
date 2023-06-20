@@ -2,6 +2,9 @@ import socket
 import PySimpleGUI as sg
 import os
 
+client_socket = None  # Variável global para o socket do cliente
+window = None  # Variável global para a janela
+
 # Recebe a imagem colocando-a na pasta imagens
 def recebeImagem(clienteSocket, nomeArquivo):
     with open(nomeArquivo, 'wb') as file:
@@ -25,24 +28,35 @@ def enviarEscolha(clienteSocket, escolha):
         _, arquivo = os.path.split(resposta)
         nomeArquivo = os.path.splitext(arquivo)[0]
         mensagem = f"A imagem {nomeArquivo} foi recebida com sucesso"
-        sg.popup(mensagem, title='Imagem Recebida') # Exibir mensagem em uma janela de pop-up
+        sg.popup(mensagem, title='Imagem Recebida')  # Exibir mensagem em uma janela de pop-up
         recebeImagem(clienteSocket, resposta)
 
     # Fecha a conexão
     clienteSocket.close()
 
+def fecharConexao():
+    global client_socket
+    if client_socket:
+        client_socket.close()
+
+# Responsável por encerrar a conexão ao clicar no botão de fechar (X)
+def fecharJanela():
+    fecharConexao()
+    window.close()
+
 def iniciaCliente():
+    global client_socket, window
     host = '127.0.0.1'
     porta = 12000
 
     # Criação do socket e conexão com o servidor
-    clienteSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clienteSocket.connect((host, porta))
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((host, porta))
 
     # Receber a lista de imagens disponíveis
-    contadorImagem = int(clienteSocket.recv(1024).decode())
+    contadorImagem = int(client_socket.recv(1024).decode())
 
-    nomeImagem = clienteSocket.recv(1024).decode()
+    nomeImagem = client_socket.recv(1024).decode()
 
     # Layout da janela
     layout = [
@@ -59,6 +73,7 @@ def iniciaCliente():
         event, values = window.read()
 
         if event == sg.WINDOW_CLOSED:
+            fecharJanela()
             break
 
         if event == 'Enviar':
@@ -70,11 +85,8 @@ def iniciaCliente():
                     break
                 else:
                     i += 1
-            enviarEscolha(clienteSocket, escolha)
+            enviarEscolha(client_socket, escolha)
             break
-
-    # Fechamento da janela
-    window.close()
 
 if __name__ == '__main__':
     iniciaCliente()
