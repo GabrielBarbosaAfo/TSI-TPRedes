@@ -22,24 +22,26 @@ def enviarEscolha(clienteSocket, escolha):
     clienteSocket.sendall(str(escolhaCliente).encode())
 
     while True:
-        resposta = clienteSocket.recv(1024).decode()
-        if not resposta:
+        try:
+            resposta = clienteSocket.recv(1024).decode()
+            if not resposta:
+                break
+            _, arquivo = os.path.split(resposta)
+            nomeArquivo = os.path.splitext(arquivo)[0]
+            mensagem = f"A imagem {nomeArquivo} foi recebida com sucesso"
+            sg.popup(mensagem, title='Imagem Recebida')  # Exibir mensagem em uma janela de pop-up
+            recebeImagem(clienteSocket, resposta)
+        except ConnectionResetError:
+            # Encerrar a conexão se ocorrer um erro de conexão
             break
-        _, arquivo = os.path.split(resposta)
-        nomeArquivo = os.path.splitext(arquivo)[0]
-        mensagem = f"A imagem {nomeArquivo} foi recebida com sucesso"
-        sg.popup(mensagem, title='Imagem Recebida')  # Exibir mensagem em uma janela de pop-up
-        recebeImagem(clienteSocket, resposta)
 
     # Fecha a conexão
     clienteSocket.close()
 
 def fecharConexao():
-    global client_socket
     if client_socket:
         client_socket.close()
 
-# Responsável por encerrar a conexão ao clicar no botão de fechar (X)
 def fecharJanela():
     fecharConexao()
     window.close()
@@ -89,4 +91,7 @@ def iniciaCliente():
             break
 
 if __name__ == '__main__':
-    iniciaCliente()
+    try:
+        iniciaCliente()
+    except ConnectionResetError:
+        fecharConexao()

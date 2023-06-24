@@ -47,14 +47,20 @@ def iniciaServer():
     print('Servidor aguardando conexões...')
 
     while True:
-        # Aceitar uma nova conexão
-        conexaoCliente, addr = serverSocket.accept()
-        print('Cliente conectado:', addr)
+        try:
+            # Aceitar uma nova conexão
+            conexaoCliente, addr = serverSocket.accept()
+            print('Cliente conectado:', addr)
 
-        # Tratar a conexão do cliente em uma nova thread
-        thread =  threading.Thread(target=trataCliente, args=(conexaoCliente,))
-        thread.start()
+            # Tratar a conexão do cliente em uma nova thread
+            thread =  threading.Thread(target=trataCliente, args=(conexaoCliente,))
+            thread.start()
+        except KeyboardInterrupt:
+            # Encerrar o servidor quando o usuário pressionar Ctrl+C
+            break
 
+    # Fechar o socket do servidor
+    serverSocket.close()
 
 if __name__ == '__main__':
     iniciaServer()
