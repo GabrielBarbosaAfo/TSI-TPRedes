@@ -27,7 +27,7 @@ def enviarEscolha(clienteSocket, escolha):
             if not resposta:
                 break
             _, arquivo = os.path.split(resposta)
-            nomeArquivo = os.path.splitext(arquivo)[0]
+            nomeArquivo = os.path.splitext(arquivo)[0]  # Utilizado para separar o nome do arquivo da sua extensão 
             mensagem = f"A imagem {nomeArquivo} foi recebida com sucesso"
             sg.popup(mensagem, title='Imagem Recebida')  # Exibir mensagem em uma janela de pop-up
             recebeImagem(clienteSocket, resposta)
