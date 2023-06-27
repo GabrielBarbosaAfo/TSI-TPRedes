@@ -29,6 +29,9 @@ def enviarEscolha(clienteSocket, escolha):
                 break
             _, arquivo = os.path.split(resposta)
             nomeArquivo = os.path.splitext(arquivo)[0]  # Utilizado para separar o nome do arquivo da sua extensão 
+            if nomeArquivo == "Escolha inválida":
+                sg.popup('Escolha inválida', title='Erro')
+                break
             mensagem = f"A imagem {nomeArquivo} foi recebida com sucesso"
             sg.popup(mensagem, title='Imagem Recebida')  # Exibir mensagem em uma janela de pop-up
             recebeImagem(clienteSocket, resposta)
@@ -64,7 +67,6 @@ def iniciaCliente():
 
         nomeImagem = client_socket.recv(1024).decode("utf-8")
 
-   
         # Layout da janela
         layout = [
             [sg.Text('Escolha uma opção:')],
@@ -92,8 +94,13 @@ def iniciaCliente():
                         break
                     else:
                         i += 1
-                enviarEscolha(client_socket, escolha)
-                break
+
+                if 0 <= escolha - 1 < len(nomeImagem.split("\r")):
+                    enviarEscolha(client_socket, escolha)
+                    break
+                else:
+                    sg.popup('Escolha inválida', title='Erro')
+                    continue
     except KeyboardInterrupt:
         sg.popup('Ocorreu um erro', title='Erro')
     except ConnectionRefusedError:

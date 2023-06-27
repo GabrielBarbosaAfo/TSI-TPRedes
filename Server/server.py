@@ -8,7 +8,7 @@ def enviaImagem(conexaoCliente, nomeArquivo):
         arquivoLido = file.read()
         conexaoCliente.sendall(arquivoLido)
 
-# Send the list of images and receive the user's choice
+# Envia a lista de imagens e recebe a escolha do usuário
 def trataCliente(conexaoCliente):
     imagens = os.listdir('imagens')
     quantidadeImagens = len(imagens)
@@ -22,13 +22,18 @@ def trataCliente(conexaoCliente):
 
     try:
         escolhaUsuario = int(conexaoCliente.recv(1024).decode("utf-8"))
-        imagemEscolhida = os.path.join('imagens', imagens[escolhaUsuario - 1])
-        conexaoCliente.sendall(imagemEscolhida.encode("utf-8"))
-        enviaImagem(conexaoCliente, imagemEscolhida)
+        
+        if 1 <= escolhaUsuario <= quantidadeImagens:
+            imagemEscolhida = os.path.join('imagens', imagens[escolhaUsuario - 1])
+            conexaoCliente.sendall(imagemEscolhida.encode("utf-8"))
+            enviaImagem(conexaoCliente, imagemEscolhida)
+        else:
+            conexaoCliente.sendall("Escolha inválida".encode("utf-8"))
     except (ValueError, KeyboardInterrupt):
         pass
     finally:
         conexaoCliente.close()
+
 
 def iniciaServer():
     host = '127.0.0.1'
