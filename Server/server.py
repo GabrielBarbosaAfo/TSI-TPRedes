@@ -34,7 +34,6 @@ def trataCliente(conexaoCliente):
     finally:
         conexaoCliente.close()
 
-
 def iniciaServer():
     host = '127.0.0.1'
     porta = 12000
